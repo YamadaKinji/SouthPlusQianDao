@@ -1,58 +1,119 @@
+import requests
 import os
-import subprocess
-import re
-import asyncio
-# from telegram import Bot
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
 
-process_1 = subprocess.Popen(['python', 'APPLYDAILY.py'], stdout=subprocess.PIPE)
-output_1, _ = process_1.communicate()
+cookie_value = os.getenv('COOKIE')
+cookies = {cookie.split('=')[0]: cookie.split('=')[1] for cookie in cookie_value.split('; ')}
 
-process_2 = subprocess.Popen(['python', 'COLLECTDAILY.py'], stdout=subprocess.PIPE)
-output_2, _ = process_2.communicate()
+a_headers = {
+    'authority': 'south-plus.net',
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7',
+    'dnt': '1',
+    'referer': 'https://south-plus.net/plugin.php?H_name-tasks-actions-newtasks.html',
+    'sec-ch-ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+}
 
-process_3 = subprocess.Popen(['python', 'APPLYWEEKLY.py'], stdout=subprocess.PIPE)
-output_3, _ = process_3.communicate()
+c_headers = {
+    'authority': 'south-plus.net',
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7',
+    'dnt': '1',
+    'referer': 'https://south-plus.net/plugin.php?H_name-tasks.html',
+    'sec-ch-ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+}
 
-process_4 = subprocess.Popen(['python', 'COLLECTWEEKLY.py'], stdout=subprocess.PIPE)
-output_4, _ = process_4.communicate()
+ad_params = {
+    'H_name': 'tasks',
+    'action': 'ajax',
+    'actions': 'job',
+    'cid': '15',
+    'nowtime': '1702877397639',
+    'verify': '9d5c5785',
+}
 
-process_5 = subprocess.Popen(['python', 'GETSP.py'], stdout=subprocess.PIPE)
-output_5, _ = process_5.communicate()
+aw_params = {
+    'H_name': 'tasks',
+    'action': 'ajax',
+    'actions': 'job',
+    'cid': '14',
+    'nowtime': '1702966244931',
+    'verify': '9d5c5785',
+}
 
-response_text1 = output_2.decode()
-title3 = output_5.decode()
+cd_params = {
+    'H_name': 'tasks',
+    'action': 'ajax',
+    'actions': 'job2',
+    'cid': '15',
+    'nowtime': '1702807077897',
+    'verify': '9d5c5785',
+    }
 
-if re.search(r"完成", response_text1):
-    title1 = "南+ 日常成功，"
-else:
-    title1 = "南+ 日常失败，"
+cw_params = {
+    'H_name': 'tasks',
+    'action': 'ajax',
+    'actions': 'job2',
+    'cid': '14',
+    'nowtime': '1702966690072',
+    'verify': '9d5c5785',
+}
 
-response_text2 = output_4.decode()
+url = 'https://www.south-plus.net/plugin.php'
+coin_url = 'https://www.south-plus.net/'
 
-if re.search(r"成功", response_text1):
-    title2 = "周常成功，"
-else:
-    title2 = "周常失败，"
+def tasks(url, params, cookies, headers, type, get_coin=False):
+    response = requests.get(url, params=params, cookies=cookies, headers=headers)
 
-# 合并输出为一个变量
-merged_content = output_1.decode() + output_2.decode() + output_3.decode() + output_4.decode()
-merged_title = title1 + title2 + title3
+    data = response.text
 
-print(merged_title)
-print(merged_content)
+    if(get_coin):
+        soup = BeautifulSoup(data, 'html.parser')
+        # 找到包含SP币值的<span>标签
+        sp_coin_span = soup.find('span', class_='s3 f10')
+        # 提取SP币值
+        sp_coin_value = sp_coin_span.text
+        # 输出SP币值
+        print("SP币:", sp_coin_value)
+        return True
 
-# bot_token = os.environ.get('BOTTOKEN')
-# chat_id = os.environ.get('USERID')
+    # 解析XML数据
+    root = ET.fromstring(data)
+    cdata = root.text
 
-# 创建 Bot 实例
+    # 提取变量值
+    values = cdata.split('\t')
+    if len(values) == 2:
+        # action = values[0]
+        message = values[1]
 
-# bot = Bot(token=bot_token)
-
-
-# 发送消息
-# async def send_message():
-#     await bot.send_message(chat_id=chat_id, text=merged_title + '\n' + merged_content)
-
-
-# 运行异步函数
-# asyncio.run(send_message())
+        print(type + message)
+    else:
+        raise Exception("XML格式不正确，请检查COOKIE设置")
+    if("还没超过" in message):
+        return False
+    else:
+        return True
+    
+if(tasks(url, ad_params, cookies, a_headers, "申请-日常: ")):
+    tasks(url, cd_params, cookies, c_headers, "完成-日常: ")
+if(tasks(url, aw_params, cookies, a_headers, "申请-周常: ")):
+    tasks(url, cw_params, cookies, c_headers, "完成-周常: ")
+tasks(coin_url, cw_params, cookies, c_headers, "", True)

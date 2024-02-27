@@ -10,7 +10,7 @@ headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7',
     'dnt': '1',
-    'referer': 'https://www.south-plus.net/plugin.php?H_name-tasks.html.html',
+    'referer': 'https://www.south-plus.net/plugin.php?H_name-tasks.html',
     'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',

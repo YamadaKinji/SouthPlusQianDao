@@ -55,4 +55,4 @@ print(merged_content)
 
 
 # 运行异步函数
-asyncio.run(send_message())
+# asyncio.run(send_message())

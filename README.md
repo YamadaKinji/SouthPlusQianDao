@@ -1,4 +1,18 @@
 # SouthPlus签到
+
+## 关于本fork
+
+精简代码逻辑，除去不必要的提醒，改为成功不提示，失败让actions报错发邮件给你（没有消息就是好消息）。
+
+因此，本fork版本只需要提供在secrets里提供COOKIE就行
+
+## 关于获取coockie
+
+以防万一，最好用chrome浏览器进行操作。
+
+登录，进入任务目录，F12，选择network->plugin.php?H_name-tasks.html.html，看右侧的Cookie栏，复制到secrets里就行
+
+-- 以下是原readme --
 ## 源代码来自只会用BurpSuite的我和神通广大的ChatGPT
 ### 感谢[能把Curl转换成各种语言的神奇网站](https://curlconverter.com/),感谢万能的[ChatGPT](https://poe.com/ChatGPT),感谢优秀的渗透工具[BurpSuite](https://portswigger.net/burp)，感谢大毛病不多，小毛病不断的浏览器[Chromium](https://www.chromium.org/chromium-projects/)及[Google Chrome](https://www.google.com/chrome/)
 ## 使用方法

@@ -100,8 +100,11 @@ def tasks(url, params, cookies, headers, type, get_coin=False):
 
     # 提取变量值
     values = cdata.split('\t')
-    if len(values) == 2:
-        # action = values[0]
+    if('申请' in type):
+        value_len = 2
+    else:
+        value_len = 3
+    if len(values) == value_len:
         message = values[1]
 
         print(type + message)

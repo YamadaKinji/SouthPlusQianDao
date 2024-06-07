@@ -95,6 +95,7 @@ def tasks(url, params, cookies, headers, type, get_coin=False):
     response = requests.get(url, params=params, cookies=cookies, headers=headers)
 
     data = response.text
+    print(response.text)
 
     if(get_coin):
         soup = BeautifulSoup(data, 'html.parser')

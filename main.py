@@ -1,5 +1,6 @@
 import requests
 import xml.etree.ElementTree as ET
+import os
 
 cookie_value = os.getenv('COOKIE')
 

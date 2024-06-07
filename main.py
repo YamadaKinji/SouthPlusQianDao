@@ -73,8 +73,9 @@ cw_params.update({
 def tasks(url, params, headers, type):
     response = requests.get(url, params=params, headers=headers)
 
-    data = response.text
     response.encoding = 'utf-8'
+    data = response.text
+    print(f"Response for {type}: {data}")
 
     # 解析XML数据
     root = ET.fromstring(data)

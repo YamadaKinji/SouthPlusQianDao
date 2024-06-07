@@ -1,7 +1,5 @@
 import requests
-import os
 import xml.etree.ElementTree as ET
-from bs4 import BeautifulSoup
 
 cookie_value = os.getenv('COOKIE')
 

@@ -21,9 +21,19 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: 总脚本
+    - name: Set locale to UTF-8
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y locales
+        sudo locale-gen en_US.UTF-8
+        sudo update-locale LANG=en_US.UTF-8
+      env:
+        LC_ALL: en_US.UTF-8
+        LANG: en_US.UTF-8
+
+    - name: Run main script
       env:
         COOKIE: ${{ secrets.COOKIE }}
+        LC_ALL: en_US.UTF-8
+        LANG: en_US.UTF-8
       run: python main.py
-   
-   

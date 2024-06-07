@@ -1,6 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
 import os
+import brotli
 
 cookie_value = os.getenv('COOKIE')
 cookie_value = cookie_value.replace('\n', '').replace(' ', '')
@@ -9,7 +10,7 @@ url = 'https://south-plus.net/plugin.php'
 
 common_headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-encoding': 'gzip, deflate, br',
     'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     'cookie': cookie_value,
     'priority': 'u=0, i',
@@ -71,19 +72,22 @@ cw_params.update({
 
 def tasks(url, params, headers, type):
     response = requests.get(url, params=params, headers=headers)
+
+    # 打印响应头以便调试
+    print(f"Headers for {type}: {response.headers}")
     
-    # 确保编码为UTF-8
-    response.encoding = 'utf-8'
+    # 检查是否是Brotli编码
+    if response.headers.get('Content-Encoding') == 'br':
+        data = brotli.decompress(response.content).decode('utf-8')
+    else:
+        data = response.text
     
-    data = response.text
-    
+    # 打印响应的前500个字符以便调试
+    print(f"Response for {type}: {data[:500]}")
+
     # 保存原始响应内容到文件
     with open(f'raw_response_{type}.txt', 'w', encoding='utf-8') as f:
         f.write(data)
-    
-    # 打印响应头和前500个字符以便调试
-    print(f"Headers for {type}: {response.headers}")
-    print(f"Response for {type}: {data[:500]}")  # 打印响应内容的前500个字符
 
     try:
         # 检查返回的数据是否包含HTML标签

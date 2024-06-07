@@ -75,6 +75,7 @@ def tasks(url, params, headers, type):
 
     response.encoding = 'utf-8'
     data = response.text
+    print(f"Headers for {type}: {response.headers}")
     print(f"Response for {type}: {data}")
 
     # 解析XML数据

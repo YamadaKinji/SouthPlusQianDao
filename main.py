@@ -1,6 +1,9 @@
 import cloudscraper
 import xml.etree.ElementTree as ET
 import os
+import brotli
+import gzip
+import io
 
 cookie_value = os.getenv('COOKIE')
 cookie_value = cookie_value.replace('\n', '').replace(' ', '')
@@ -64,57 +67,4 @@ cd_params.update({
 })
 
 cw_params = common_params.copy()
-cw_params.update({
-    'actions': 'job2',
-    'cid': '14',
-})
-
-scraper = cloudscraper.create_scraper()
-
-def tasks(url, params, headers, type):
-    response = scraper.get(url, params=params, headers=headers)
-    
-    # 打印响应头以便调试
-    print(f"Headers for {type}: {response.headers}")
-
-    # 处理多种编码格式
-    data = response.content.decode('utf-8')
-    
-    # 打印响应的前500个字符以便调试
-    print(f"Response for {type}: {data[:500]}")
-
-    # 保存原始响应内容到文件
-    with open(f'raw_response_{type}.txt', 'w', encoding='utf-8') as f:
-        f.write(data)
-
-    try:
-        # 检查返回的数据是否包含HTML标签
-        if '<html' in data.lower():
-            raise Exception("服务器返回的内容包含HTML标签，可能是错误的请求或服务器问题。")
-        
-        # 解析XML数据
-        root = ET.fromstring(data)
-        cdata = root.text
-    except ET.ParseError as e:
-        raise Exception(f"XML解析错误: {e}")
-
-    # 提取变量值
-    values = cdata.split('\t')
-    if '申请' in type:
-        value_len = 2
-    else:
-        value_len = 3
-    if len(values) == value_len:
-        message = values[1]
-        print(type + message)
-    else:
-        raise Exception("XML格式不正确，请检查COOKIE设置")
-    if "还没超过" in message:
-        return False
-    else:
-        return True
-
-if tasks(url, ad_params, a_headers, "申请-日常: "):
-    tasks(url, cd_params, c_headers, "完成-日常: ")
-if tasks(url, aw_params, a_headers, "申请-周常: "):
-    tasks(url, cw_params, c_headers, "完成-周常: ")
+cw_params.update(

@@ -2,6 +2,8 @@ import requests
 import xml.etree.ElementTree as ET
 import os
 import brotli
+import gzip
+import io
 
 cookie_value = os.getenv('COOKIE')
 cookie_value = cookie_value.replace('\n', '').replace(' ', '')
@@ -72,15 +74,32 @@ cw_params.update({
 
 def tasks(url, params, headers, type):
     response = requests.get(url, params=params, headers=headers)
-
+    
     # 打印响应头以便调试
     print(f"Headers for {type}: {response.headers}")
-    
-    # 检查是否是Brotli编码
+
+    # 处理多种编码格式
+    data = None
     if response.headers.get('Content-Encoding') == 'br':
-        data = brotli.decompress(response.content).decode('utf-8')
+        try:
+            data = brotli.decompress(response.content).decode('utf-8')
+        except brotli.error as e:
+            print(f"Brotli 解压失败: {e}")
+    elif response.headers.get('Content-Encoding') == 'gzip':
+        try:
+            buf = io.BytesIO(response.content)
+            f = gzip.GzipFile(fileobj=buf)
+            data = f.read().decode('utf-8')
+        except OSError as e:
+            print(f"Gzip 解压失败: {e}")
     else:
-        data = response.text
+        try:
+            data = response.content.decode('utf-8')
+        except UnicodeDecodeError as e:
+            print(f"UTF-8 解码失败: {e}")
+    
+    if data is None:
+        data = response.text  # 如果所有解码都失败，直接使用文本内容
     
     # 打印响应的前500个字符以便调试
     print(f"Response for {type}: {data[:500]}")

@@ -38,7 +38,6 @@ c_headers.update({
     'Referer': url+'?H_name-tasks.html.html'
 })
 
-
 common_params = {
     'H_name': 'tasks',
     'action': 'ajax',
@@ -72,34 +71,48 @@ cw_params.update({
 
 def tasks(url, params, headers, type):
     response = requests.get(url, params=params, headers=headers)
-
+    
+    # 确保编码为UTF-8
     response.encoding = 'utf-8'
+    
     data = response.text
+    
+    # 保存原始响应内容到文件
+    with open(f'raw_response_{type}.txt', 'w', encoding='utf-8') as f:
+        f.write(data)
+    
+    # 打印响应头和前500个字符以便调试
     print(f"Headers for {type}: {response.headers}")
-    print(f"Response for {type}: {data}")
+    print(f"Response for {type}: {data[:500]}")  # 打印响应内容的前500个字符
 
-    # 解析XML数据
-    root = ET.fromstring(data)
-    cdata = root.text
+    try:
+        # 检查返回的数据是否包含HTML标签
+        if '<html' in data.lower():
+            raise Exception("服务器返回的内容包含HTML标签，可能是错误的请求或服务器问题。")
+        
+        # 解析XML数据
+        root = ET.fromstring(data)
+        cdata = root.text
+    except ET.ParseError as e:
+        raise Exception(f"XML解析错误: {e}")
 
     # 提取变量值
     values = cdata.split('\t')
-    if('申请' in type):
+    if '申请' in type:
         value_len = 2
     else:
         value_len = 3
     if len(values) == value_len:
         message = values[1]
-
         print(type + message)
     else:
         raise Exception("XML格式不正确，请检查COOKIE设置")
-    if("还没超过" in message):
+    if "还没超过" in message:
         return False
     else:
         return True
-    
-if(tasks(url, ad_params, a_headers, "申请-日常: ")):
+
+if tasks(url, ad_params, a_headers, "申请-日常: "):
     tasks(url, cd_params, c_headers, "完成-日常: ")
-if(tasks(url, aw_params, a_headers, "申请-周常: ")):
+if tasks(url, aw_params, a_headers, "申请-周常: "):
     tasks(url, cw_params, c_headers, "完成-周常: ")
